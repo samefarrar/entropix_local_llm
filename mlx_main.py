@@ -33,9 +33,9 @@ def main():
         model_with_scores = False
         sample_config_kwargs = SamplerConfig()
         sample_config_kwargs = {
-            "temp": sample_config_kwargs.temp,
+            "temp": sample_config_kwargs.temperature,
             "top_p": sample_config_kwargs.top_p,
-            "min_p": sample_config_kwargs.min_p,
+            "min_p": sample_config_kwargs.min_probability,
         }
     else:
         path = Path("weights/Llama-3.2-1B-Instruct")
