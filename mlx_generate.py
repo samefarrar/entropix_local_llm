@@ -12,6 +12,20 @@ from mlx_sampler import SamplerConfig
 
 LN_2 = 0.69314718056  # ln(2)
 
+def rgb_to_ansi(r: int, g: int, b: int) -> str:
+    """Convert RGB colour to ANSI escape sequence."""
+    return f"\033[38;2;{r};{g};{b}m"
+
+def apply_colour_and_format(text: str, colour: Tuple[int, int, int], formatting: str) -> str:
+    """Apply colour and formatting to text."""
+    colour_code = rgb_to_ansi(*colour)
+    return f"{colour_code}{formatting}{text}\033[0m"
+
+def print_coloured(text: str, colour: Tuple[int, int, int], formatting: str, end: str = ""):
+    """Print text with colour and formatting."""
+    coloured_text = apply_colour_and_format(text, colour, formatting)
+    print(coloured_text, end=end, flush=True)
+
 def generate_step(
     prompt: mx.array,
     model: nn.Module,
@@ -19,7 +33,7 @@ def generate_step(
     max_kv_size: Optional[int] = None,
     cache_history: Optional[List[Tuple[mx.array, mx.array]]] = None,
     sampler_config: SamplerConfig = SamplerConfig(),
-) -> Generator[mx.array, None, None]:
+) -> Generator[Tuple[mx.array, Tuple[Tuple[int,int,int], str]], None, None]:
     """
     A generator producing token ids based on the given prompt from the model.
 
@@ -67,22 +81,23 @@ def generate_step(
     def _step(y):
         logits, scores, attention_stats = model(y, cache=cache)
         #logits = logits[:, -1, :]
-        y = sample(y, logits, scores, cfg = sampler_config) # Convert returned (bsz, 1) to (bsz, )
-        return y
+        y, colour = sample(y, logits, scores, cfg = sampler_config) # Convert returned (bsz, 1) to (bsz, )
+        return y, colour
+
 
     while y.size > prefill_step_size:
         model(y[:prefill_step_size][None], cache=cache)
         mx.eval([c.state for c in cache])
         y = y[prefill_step_size:]
 
-    y = _step(y[None])
+    y, colour = _step(y[None])
 
     mx.async_eval(y)
     while True:
-        next_y = _step(y)
+        next_y, next_colour = _step(y)
         mx.async_eval(next_y)
-        yield y.item()
-        y = next_y
+        yield (y.item(), colour)
+        y, colour = next_y, next_colour
 
 def generate(
     model: nn.Module,
@@ -92,7 +107,7 @@ def generate(
     verbose: bool = False,
     formatter: Optional[Callable] = None,
     **kwargs,
-) -> Union[str, Generator[str, None, None]]:
+) -> Union[str, Generator[Tuple[mx.array, Tuple[Tuple[int,int,int], str]], None, None]]:
     """
     Generate a complete response from the model.
 
@@ -123,7 +138,7 @@ def generate(
 
     sampler_config = SamplerConfig()
 
-    for (token), n in zip(
+    for (token, colour), n in zip(
         generate_step(prompt_tokens, model, sampler_config = sampler_config, **kwargs),
         range(max_tokens),
     ):
@@ -133,14 +148,13 @@ def generate(
         if token == tokenizer.eos_token_id:
             break
         detokenizer.add_token(token)
-
         if verbose:
             if formatter:
                 # We have to finalize so that the prob corresponds to the last segment
                 detokenizer.finalize()
                 #formatter(detokenizer.last_segment, mx.exp(logprobs[token]).item())
             else:
-                print(detokenizer.last_segment, end="", flush=True)
+                print_coloured(detokenizer.last_segment, colour=colour[0], formatting=colour[1])
 
     token_count = n + 1
     detokenizer.finalize()
