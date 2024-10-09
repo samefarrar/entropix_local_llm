@@ -6,6 +6,7 @@ tokenizer.model
 uv.lock
 converted
 ui/bun.lockb
+metrics.csv
 
 # boilerplate from here on down
 *__pycache__*
