@@ -49,19 +49,17 @@ def main():
             {"role": "system", "content": thinking_prompt},
             {"role": "user", "content": args.input}
         ]
-        prompt = tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=False
-        )
+        prompt = thinking_prompt.format(prompt = args.input)
         if args.normal:
             response = generate_mlx_lm(model, tokenizer, prompt=prompt, verbose=True, max_tokens = max_tokens, **sample_config_kwargs)
         else:
             response = generate(model, tokenizer, prompt=prompt, verbose=True, max_tokens = max_tokens)
     elif args.prompt_csv:
-        prompts = create_prompts_from_csv("data/prompts.csv")
+        prompts = create_prompts_from_csv("data/acp.csv")
         for prompt in prompts:
             messages = [{"role": "user", "content": prompt}]
             prompt = tokenizer.apply_chat_template(
-                messages, tokenize=False, add_generation_prompt=False
+                messages, tokenize=False, add_generation_prompt=True
             )
             if args.normal:
                 response = generate_mlx_lm(model, tokenizer, prompt=prompt, verbose=True, max_tokens = max_tokens, **sample_config_kwargs)
