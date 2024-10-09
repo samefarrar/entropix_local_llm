@@ -1,47 +1,70 @@
 from pydantic import BaseModel
 class SamplerConfig(BaseModel):
     """
-    Encapsulation of all available sampler hyperparameters.
-
-    This should be a good starting point for baselining experiments.
+    Configuration for the sampling strategy, including threshold values for various metrics
+    and adaptive sampling parameters.
     """
 
-    temp: float = 0.666
+    # Sampling Hyperparameters
+    temperature: float = 0.666
     top_p: float = 0.90
     top_k: int = 27
-    min_p: float = 0.03  # Turn this down to 0.01 to reduce the shoggoth
+    min_probability: float = 0.03  # Minimum probability threshold for token selection
 
-    low_ent_thresh: float = 0.1
-    low_vent_thresh: float = 0.1
-    med_ent_thresh: float = 3.0
-    high_ent_thresh: float = 5.0
-    high_vent_thresh: float = 5.0
+    # Logits Entropy Thresholds
+    low_logits_entropy_threshold: float = 0.01
+    medium_logits_entropy_threshold: float = 1.0
+    high_logits_entropy_threshold: float = 1.7
 
-    # TODO this is a bit of a nasty mess, but also makes all the hyperparameters visible
-    helv_attn_ent_offset: float = 1.3
-    helv_attn_ent_coef: float = 0.2
+    # Logits Varentropy Thresholds
+    low_logits_varentropy_threshold: float = 1.3
+    medium_logits_varentropy_threshold: float = 3.0
+    high_logits_varentropy_threshold: float = 4.5
 
-    lehv_interaction_strength_offset: float = 1.2
-    lehv_interaction_strength_coef: float = 0.3
+    # Attention Entropy Thresholds
+    low_attention_entropy_threshold: float = 3.0
+    medium_attention_entropy_threshold: float = 3.8
+    high_attention_entropy_threshold: float = 4.0
 
-    hehv_attn_ent_coef: float = 0.2
-    hehv_attn_vent_offset: float = 2.0
-    hehv_attn_vent_coef: float = 0.5
+    # Attention Varentropy Thresholds
+    low_attention_varentropy_threshold: float = 0.9
+    medium_attention_varentropy_threshold: float = 1.5
+    high_attention_varentropy_threshold: float = 1.9
 
-    # TODO not convinced this should
-    n_adaptive_samples: int = 5
+    # Agreement Thresholds
+    low_agreement_threshold: float = 0.00065
+    medium_agreement_threshold: float = 0.0010
+    high_agreement_threshold: float = 0.0020
 
-    # Adaptive sampling parameters
-    ada_temp_logits: float = 0.3
-    ada_temp_attn: float = 0.2
-    ada_temp_agree: float = 0.2
-    ada_top_p: float = 0.1
-    ada_top_k_int: float = 0.3
-    ada_top_k_agree: float = 0.2
-    ada_min_p: float = 0.5
-    ada_score_logits_ent: float = 0.1
-    ada_score_attn_ent: float = 0.2
-    ada_score_logits_vent: float = 0.3
-    ada_score_attn_vent: float = 0.4
-    ada_score_agree: float = 0.5
-    ada_score_int: float = 0.6
+    # Interaction Strength Thresholds
+    low_interaction_strength_threshold: float = 5.53
+    medium_interaction_strength_threshold: float = 6.59
+    high_interaction_strength_threshold: float = 6.87
+
+
+    # Offsets and Coefficients for Adjusting Sampling Parameters
+    high_entropy_attention_offset: float = 1.3
+    high_entropy_attention_coefficient: float = 0.2 / 0.29
+
+    low_entropy_interaction_strength_offset: float = 1.2
+    low_entropy_interaction_strength_coefficient: float = 0.3 / 27.2
+
+    high_entropy_varentropy_attention_offset: float = 2.0
+    high_entropy_varentropy_attention_coefficient: float = 0.5 / 310.0
+
+    # Adaptive Sampling Parameters
+    number_of_adaptive_samples: int = 5
+
+    adaptive_temperature_logits_coefficient: float = 0.3
+    adaptive_temperature_attention_coefficient: float = 0.2 / 0.29
+    adaptive_temperature_agreement_coefficient: float = 0.2 / 248.0
+    adaptive_top_p_coefficient: float = 0.1 / 310.0
+    adaptive_top_k_interaction_coefficient: float = 0.3 / 27.10
+    adaptive_top_k_agreement_coefficient: float = 0.2 / 248.0
+    adaptive_min_p_coefficient: float = 0.5
+    adaptive_score_logits_entropy_coefficient: float = 0.1
+    adaptive_score_attention_entropy_coefficient: float = 0.2 / 0.31
+    adaptive_score_logits_varentropy_coefficient: float = 0.3
+    adaptive_score_attention_varentropy_coefficient: float = 0.4 / 310.0
+    adaptive_score_agreement_coefficient: float = 0.5 / 248.0
+    adaptive_score_interaction_strength_coefficient: float = 0.6 / 27.10
