@@ -11,13 +11,13 @@ import tyro
 from pathlib import Path
 from functools import partial
 
-from config import LLAMA_1B_PARAMS
-from kvcache import KVCache
-from model import xfmr
-from prompts import prompt, bp1
-from sampler import sample
-from tokenizer import Tokenizer
-from weights import load_weights
+from frameworks.config import LLAMA_1B_PARAMS
+from frameworks.kvcache import KVCache
+from frameworks.model import xfmr
+from frameworks.prompts import create_prompts_from_csv, prompt4, p4o
+from frameworks.sampler import SamplerConfig, sample
+from frameworks.tokenizer import Tokenizer
+from frameworks.weights import load_weights
 
 DEFAULT_WEIGHTS_PATH = Path(__file__).parent / '../weights'
 
