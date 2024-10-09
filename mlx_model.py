@@ -40,7 +40,7 @@ class EntropyAttention(Attention):
             keys = self.rope(keys)
 
         shaped_keys = mx.repeat(keys, repeats=self.n_reps, axis = 1).transpose(0, 1, 3, 2) # (B, n_heads, L, head_dim)
-        pre_scores = mx.matmul(queries, shaped_keys) / mx.sqrt(self.n_heads) # (B, n_heads, L, L)
+        pre_scores = mx.matmul(queries, shaped_keys) * self.scale # (B, head_dim, L, L)
         # Waiting patiently for einsum to be supported in MLX
         # pre_scores = einsum(queries, shaped_keys, 'b h i d, b h j d -> b h i j', ) / mx.sqrt(self.n_heads)
 
