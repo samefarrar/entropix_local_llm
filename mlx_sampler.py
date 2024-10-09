@@ -277,7 +277,7 @@ def sample(
             ), colour)  # Assuming 2564 is our "ask clarifying question" token
         else:
             # If we've just asked a question, sample with slightly higher temperature
-            temp_adj = cfg.high_entropy_attention_offset + cfg.high_entropy_attention_coefficient * attention_entropy  # Increase temperature based on attention entropy
+            temp_adj = (cfg.high_entropy_attention_offset + cfg.high_entropy_attention_coefficient * attention_entropy)  # Increase temperature based on attention entropy
             return (_sample(logits,
                 temperature=min(1.5, cfg.temperature * temp_adj),
                 top_p = cfg.top_p,
@@ -297,9 +297,9 @@ def sample(
         # top_k_values, top_k_indices = mx.top_k(logits[:, -1], k=top_k)
         # return top_k_indices
         temp_adj = cfg.low_entropy_interaction_strength_offset + cfg.low_entropy_interaction_strength_coefficient * interaction_strength  # Increase temperature based on interaction strength
-        top_k_adj = max(5, int(cfg.top_k * (1 + 0.5 * (1 - agreement)))) # Increase top_k when agreement is low
+        top_k_adj = max(5, int(cfg.top_k * (1 + 0.5 * (1 - agreement / 248.0)))) # Increase top_k when agreement is low
         return (_sample(logits,
-            temperature=min(1,5, cfg.temperature * temp_adj),
+            temperature=min(1.5, cfg.temperature * temp_adj),
             top_p = cfg.top_p,
             top_k = top_k_adj,
             min_p = cfg.min_probability),
@@ -339,7 +339,7 @@ def sample(
             1.0)
         top_k = int(
             mx.clip(
-                mx.round(cfg.top_k * (1 + cfg.adaptive_top_k_interaction_coefficient * interaction_strength.item() - cfg.adaptive_top_k_agreement_coefficient * metrics['agreement'].item())),
+                mx.round(cfg.top_k * (1 + cfg.adaptive_top_k_interaction_coefficient * interaction_strength.item() - cfg.adaptive_top_k_agreement_coefficient * agreement.item())),
                 a_min = 1,
                 a_max = 100
             )
