@@ -1,6 +1,7 @@
 import csv
 from pathlib import Path
 from typing import List, Dict
+from random import shuffle
 
 def create_prompt_template(role: str, task: str) -> str:
     return f"""<|start_header_id|>system<|end_header_id|>
@@ -48,6 +49,7 @@ def create_prompts_from_csv(csv_path: str) -> List[str]:
             task = row['prompt']
             prompt = create_prompt_template(role, task)
             prompts.append(prompt)
+    shuffle(prompts)
     return prompts
 
 thinking_prompt = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
