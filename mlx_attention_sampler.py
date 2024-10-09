@@ -12,14 +12,14 @@ class SamplerConfig(BaseModel):
     min_probability: float = 0.03  # Minimum probability threshold for token selection
 
     # Logits Entropy Thresholds
-    low_logits_entropy_threshold: float = 0.01
-    medium_logits_entropy_threshold: float = 1.0
-    high_logits_entropy_threshold: float = 1.7
+    low_logits_entropy_threshold: float = 0.1
+    medium_logits_entropy_threshold: float = 3.0
+    high_logits_entropy_threshold: float = 5.0
 
     # Logits Varentropy Thresholds
-    low_logits_varentropy_threshold: float = 1.3
+    low_logits_varentropy_threshold: float = 0.1
     medium_logits_varentropy_threshold: float = 3.0
-    high_logits_varentropy_threshold: float = 4.5
+    high_logits_varentropy_threshold: float = 5.0
 
     # Attention Entropy Thresholds
     low_attention_entropy_threshold: float = 3.0
