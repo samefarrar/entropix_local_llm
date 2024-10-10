@@ -40,7 +40,7 @@ Current supported models:
 uv sync
 ```
 
-download weights (Instruct), you need to have **set up your huggingface cli for this!**
+download weights (Instruct), you need to have **[set up your huggingface cli](https://huggingface.co/docs/huggingface_hub/guides/cli#getting-started) for this!**
 ```
 uv run mlx_download_weights.py
 ```
