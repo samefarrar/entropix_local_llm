@@ -94,7 +94,8 @@ class EntropyLlamaModel(LlamaModel):
             cache = [None] * len(self.layers)
 
         for i, (layer, c) in enumerate(zip(self.layers, cache)):
-            h, scores = layer(h, mask, cache=c)
+            h, scores = layer(h, mask, cache=c) # at output this should be (1, 32, 1, 4096)
+            # with max in range: ~5, min in range: ~-19 and mean value ~-0.18
             attention_stats = attention_stats.update(scores[:, :, -1, :], i)
 
         return self.norm(h), scores, attention_stats
